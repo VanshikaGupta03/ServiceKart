@@ -1,8 +1,12 @@
 const db = require("../database");
-
+const { userValidationSchema } = require("../validation");
 
 exports.registerUser = async (req, res) => {
     try {
+        const { error } = userValidationSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
         const { first_name, last_name, phone, gender, email, dob } = req.body;
         const profileImage = req.file ? req.file.filename : null;
 

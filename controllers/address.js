@@ -1,8 +1,12 @@
 const db = require("../database");
-
+const { addressValidationSchema } = require("../validation");
 
 exports.addAddress = async (req, res) => {
     try {
+        const { error } = addressValidationSchema.validate(req.body);
+                if (error) {
+                    return res.status(400).json({ error: error.details[0].message });
+                }
         if (!req.user || !req.user.id) {
             return res.status(401).json({ message: "Unauthorized! Token missing or invalid." });
         }

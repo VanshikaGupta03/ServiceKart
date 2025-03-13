@@ -1,7 +1,12 @@
 const db = require('../database');
+const { cardValidationSchema } = require("../validation");
 
 
 exports.addCard =async (req, res) => {
+    const { error } = cardValidationSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
     const user_id = req.user.id; 
     console.log("Request received:", req.body);
     const { card_type, card_holder_name, card_number, expiry_date } = req.body;
