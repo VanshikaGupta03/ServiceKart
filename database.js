@@ -20,7 +20,14 @@ const db = mysql.createPool({
     email VARCHAR(255) NOT NULL UNIQUE,
     otp VARCHAR(6) DEFAULT NULL,
     otp_expires DATETIME DEFAULT NULL,
-    is_verified BOOLEAN DEFAULT FALSE,
+   
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    phone INT(20) NOT NULL UNIQUE,
+    gender ENUM('male', 'female') NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    dob DATE NOT NULL,
+    profile_image VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -58,22 +65,7 @@ const db = mysql.createPool({
         )
     `);
     console.log("'card' table is ready!");
-    await connection.query(`
-        CREATE TABLE IF NOT EXISTS profile (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    phone INT(20) NOT NULL UNIQUE,
-    gender ENUM('male', 'female') NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    dob DATE NOT NULL,
-    profile_image VARCHAR(255) DEFAULT NULL,
-    is_verified BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-        
-    `);
+    
         connection.release();
 
     } catch (error) {

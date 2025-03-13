@@ -6,6 +6,11 @@ exports.registerUser = async (req, res) => {
         const { first_name, last_name, phone, gender, email, dob } = req.body;
         const profileImage = req.file ? req.file.filename : null;
 
+        const user_id = req.user?.id; 
+
+        if (!user_id) {
+            return res.status(401).json({ error: "Unauthorized: User ID missing from token" });
+        }
         
         if (!first_name || !last_name || !phone || !gender || !email || !dob) {
             return res.status(400).json({ error: "All fields are required!" });
@@ -30,7 +35,7 @@ exports.registerUser = async (req, res) => {
 
         
         await db.query(
-            "INSERT INTO profile (first_name, last_name, phone, gender, email, dob, profile_image) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (first_name, last_name, phone, gender, email, dob, profile_image) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [first_name, last_name, phone, gender.toLowerCase(), email, dob, profileImage]
         );
 
@@ -48,41 +53,47 @@ exports.registerUser = async (req, res) => {
 
 
 
+
+
 exports.updateProfile = async (req, res) => {
     try {
-        const { id, first_name, last_name, phone, gender, email, dob, profile_image, is_verified } = req.body;
-
         
-        if (!id) {
+        const user_id = req.user.id; 
+
+        const { first_name, last_name, phone, gender, email, dob, profile_image } = req.body;
+
+       
+        if (!user_id) {
             return res.status(400).json({ message: "User ID is required!" });
         }
 
-        
-        const [existingProfile] = await db.query("SELECT * FROM profile WHERE id = ?", [id]);
+        const [existingProfile] = await db.query("SELECT * FROM users WHERE id = ?", [user_id]);
         if (existingProfile.length === 0) {
             return res.status(404).json({ message: "Profile not found!" });
         }
 
         
         if (phone) {
-            const [phoneExists] = await db.query("SELECT id FROM profile WHERE phone = ? AND id != ?", [phone, id]);
+            const [phoneExists] = await db.query("SELECT id FROM users WHERE phone = ? AND id != ?", [phone, user_id]);
             if (phoneExists.length > 0) {
                 return res.status(400).json({ message: "Phone number is already registered!" });
             }
         }
 
+       
         if (email) {
-            const [emailExists] = await db.query("SELECT id FROM profile WHERE email = ? AND id != ?", [email, id]);
+            const [emailExists] = await db.query("SELECT id FROM users WHERE email = ? AND id != ?", [email, user_id]);
             if (emailExists.length > 0) {
                 return res.status(400).json({ message: "Email is already registered!" });
             }
         }
 
+        
         if (gender && !["male", "female"].includes(gender.toLowerCase())) {
             return res.status(400).json({ message: "Gender must be 'male' or 'female'!" });
         }
 
-     
+       
         const fieldsToUpdate = [];
         const values = [];
 
@@ -114,18 +125,17 @@ exports.updateProfile = async (req, res) => {
             fieldsToUpdate.push("profile_image = ?");
             values.push(profile_image);
         }
-        if (typeof is_verified !== "undefined") {
-            fieldsToUpdate.push("is_verified = ?");
-            values.push(is_verified);
-        }
+        
 
+        
         if (fieldsToUpdate.length === 0) {
             return res.status(400).json({ message: "No updates provided!" });
         }
 
-        values.push(id); 
+        values.push(user_id); 
 
-        const updateQuery = `UPDATE profile SET ${fieldsToUpdate.join(", ")} WHERE id = ?`;
+        
+        const updateQuery = `UPDATE users SET ${fieldsToUpdate.join(", ")} WHERE id = ?`;
         const [updateResult] = await db.query(updateQuery, values);
 
         if (updateResult.affectedRows === 0) {
@@ -133,7 +143,7 @@ exports.updateProfile = async (req, res) => {
         }
 
       
-        const [updatedProfile] = await db.query("SELECT * FROM profile WHERE id = ?", [id]);
+        const [updatedProfile] = await db.query("SELECT * FROM users WHERE id = ?", [user_id]);
 
         res.status(200).json({
             message: "Profile updated successfully!",
@@ -146,23 +156,22 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+
+
+
 exports.deleteProfile = async (req, res) => {
     try {
-        const { id } = req.body;
+       
+        const user_id = req.user.id;
 
-        
-        if (!id) {
-            return res.status(400).json({ message: "User ID is required!" });
-        }
-
-        
-        const [existingUser] = await db.query("SELECT * FROM profile WHERE id = ?", [id]);
+   
+        const [existingUser] = await db.query("SELECT * FROM users WHERE id = ?", [user_id]);
         if (existingUser.length === 0) {
             return res.status(404).json({ message: "User not found!" });
         }
 
-        
-        const [deleteResult] = await db.query("DELETE FROM profile WHERE id = ?", [id]);
+      
+        const [deleteResult] = await db.query("DELETE FROM users WHERE id = ?", [user_id]);
 
         if (deleteResult.affectedRows === 0) {
             return res.status(400).json({ message: "User deletion failed." });
