@@ -15,18 +15,16 @@ const db = mysql.createPool({
 
 
         await connection.query(`
-          CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     otp VARCHAR(6) DEFAULT NULL,
-    otp_expires DATETIME DEFAULT NULL,
-   
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    phone INT(20) NOT NULL UNIQUE,
-    gender ENUM('male', 'female') NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    dob DATE NOT NULL,
+    
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    phone VARCHAR(20) NOT NULL UNIQUE,
+    gender ENUM('male', 'female') DEFAULT NULL,  
+    dob DATE DEFAULT NULL,
     profile_image VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -66,6 +64,19 @@ const db = mysql.createPool({
     `);
     console.log("'card' table is ready!");
     
+    await connection.query(`
+       CREATE TABLE IF NOT EXISTS cart (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                product_id INT NOT NULL,
+                Product_name VARCHAR(255) NOT NULL,
+                quantity INT NOT NULL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (product_id) REFERENCES product(Product_id) ON DELETE CASCADE
+            );
+
+    `);
         connection.release();
 
     } catch (error) {

@@ -11,6 +11,7 @@ const signuproute=require("./Routes/signup");
 const userroute=require("./Routes/users");
 const addressroute=require('./Routes/address');
 const cardroute=require('./Routes/card');
+const productroute=require('./Routes/product');
 
 
 app.use(express.json());
@@ -22,6 +23,7 @@ app.use('/sign',signuproute);
 app.use('/fetch',userroute);
 app.use('/add',addressroute);
 app.use('/card',cardroute);
+app.use('/product',productroute);
 
 
 app.use(session({ secret: process.env.JWT_SECRET_KEY, resave: false, saveUninitialized: true }));
