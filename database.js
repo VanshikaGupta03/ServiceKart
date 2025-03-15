@@ -77,6 +77,36 @@ const db = mysql.createPool({
             );
 
     `);
+    
+    await connection.query(`
+       
+CREATE TABLE IF NOT EXISTS orders (
+    orderId INT AUTO_INCREMENT PRIMARY KEY,
+    id INT NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    order_status ENUM('Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled') DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+         
+
+ 
+     `);    
+       await connection.query(`
+    CREATE TABLE IF NOT EXISTS orderdetails (
+    orderDetailId INT AUTO_INCREMENT PRIMARY KEY,
+    orderId INT NOT NULL,
+    Product_id INT NOT NULL,
+    Product_name VARCHAR(255) NOT NULL,
+    Product_price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (orderId) REFERENCES orders(orderId) ON DELETE CASCADE,
+    FOREIGN KEY (Product_id) REFERENCES product(Product_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+ 
+
+     `);
         connection.release();
 
     } catch (error) {

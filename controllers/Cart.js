@@ -177,3 +177,23 @@ exports.removeFromCart = async (req, res) => {
         res.status(500).json({ success: false, message: "Database error", error: err });
     }
 };
+
+exports.getCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+ console.log("Fetching cart for user ID:", userId);
+
+        const [cartItems] = await db.execute("SELECT * FROM cart WHERE user_id = ?", [userId]);
+        console.log("Raw cart items:", cartItems);
+
+        if (cartItems.length === 0) {
+            return res.status(200).json({ success: true, message: "Cart is empty", cart: [] });
+        }
+
+        return res.status(200).json({ success: true, cart: cartItems });
+    } catch (err) {
+        console.error("Error fetching cart:", err);
+        res.status(500).json({ success: false, message: "Database error", error: err });
+    }
+};
+
