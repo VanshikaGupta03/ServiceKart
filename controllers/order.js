@@ -4,7 +4,7 @@ exports.orderPlace = async (req, res) => {
         const user_id = req.user.id;
         const { products, address_id } = req.body;  
 
-        console.log("Order Data:", req.body); 
+        //console.log("Order Data:", req.body); 
 
         if (!user_id || !products || products.length === 0 || !address_id) {
             return res.status(400).json({ success: false, message: "Missing required fields (products or address_id)" });
