@@ -4,7 +4,7 @@ const userValidationSchema = Joi.object({
     first_name: Joi.string().min(2).max(255).required(),
     last_name: Joi.string().min(2).max(255).required(),
     email: Joi.string().email().required(),
-    phone: Joi.string().length(10).pattern(/^[0-9]+$/).required(),
+    phone: Joi.string().pattern(/^\d{10}$/).required(),
     gender: Joi.string().valid("male", "female").required(),
     dob: Joi.date().iso().required(),
     profile_image: Joi.string().allow(null, ""),

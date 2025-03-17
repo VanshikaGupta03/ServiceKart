@@ -12,32 +12,19 @@ exports.addToCart = async (req, res) => {
         let responseList = []; 
 
         for (let item of products) {
-            let { Product_id, Product_name, quantity } = item;
+            let { Product_id, quantity } = item;
+
+            if (!Product_id) {
+                responseList.push({ success: false, message: "Product ID is required" });
+                continue;
+            }
 
             if (!quantity || quantity <= 0) {
                 responseList.push({ Product_id, success: false, message: "Quantity must be greater than 0" });
                 continue;
             }
 
-          
-            if (!Product_id && Product_name) {
-                const [Product] = await db.execute(
-                    "SELECT Product_id, quantity FROM product WHERE Product_name = ?",
-                    [Product_name]
-                );
-
-                if (Product.length === 0) {
-                    responseList.push({ Product_name, success: false, message: "Product not found" });
-                    continue;
-                }
-
-                Product_id = Product[0].Product_id;
-            }
-
-            if (!Product_id) {
-                responseList.push({ success: false, message: "Product ID or name is required" });
-                continue;
-            }
+           
             const [ProductData] = await db.execute(
                 "SELECT quantity FROM product WHERE Product_id = ?",
                 [Product_id]
@@ -64,7 +51,7 @@ exports.addToCart = async (req, res) => {
                 continue;
             }
 
-           
+            
             const [existingCartItem] = await db.execute(
                 "SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?",
                 [userId, Product_id]
@@ -94,8 +81,8 @@ exports.addToCart = async (req, res) => {
                 });
             } else {
                 await db.execute(
-                    "INSERT INTO cart (user_id, product_id, product_name, quantity) VALUES (?, ?, ?, ?)",
-                    [userId, Product_id, Product_name, quantity]
+                    "INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)",
+                    [userId, Product_id, quantity]
                 );
 
                 responseList.push({ Product_id, success: true, message: "Product added to cart" });
@@ -108,7 +95,6 @@ exports.addToCart = async (req, res) => {
         res.status(500).json({ success: false, message: "Database error", error: err });
     }
 };
-
 
 
 exports.removeFromCart = async (req, res) => {

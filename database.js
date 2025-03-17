@@ -83,12 +83,15 @@ const db = mysql.createPool({
 CREATE TABLE IF NOT EXISTS orders (
     orderId INT AUTO_INCREMENT PRIMARY KEY,
     id INT NOT NULL,
+    address_id INT NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     order_status ENUM('Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled') DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
+   
 ) ENGINE=InnoDB;
          
+
 
  
      `);    
@@ -106,6 +109,18 @@ CREATE TABLE IF NOT EXISTS orders (
 
  
 
+     `);
+     await connection.query(`
+        CREATE TABLE IF NOT EXISTS ratings (
+            rating_id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            product_id INT NOT NULL,
+            rating INT CHECK (rating BETWEEN 1 AND 5),
+            review TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES product(Product_id) ON DELETE CASCADE
+        )
      `);
         connection.release();
 
