@@ -122,6 +122,26 @@ CREATE TABLE IF NOT EXISTS orders (
             FOREIGN KEY (product_id) REFERENCES product(Product_id) ON DELETE CASCADE
         )
      `);
+     await connection.query(`
+        CREATE TABLE IF NOT EXISTS wallets (
+    wallet_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    balance DECIMAL(10,2) DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+        `)
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS transactions (
+    transaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    transaction_type ENUM('credit', 'debit', 'refund') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+            `)
         connection.release();
 
     } catch (error) {
