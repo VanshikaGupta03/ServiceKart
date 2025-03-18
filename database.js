@@ -35,7 +35,7 @@ const db = mysql.createPool({
 
         await connection.query(`
           CREATE TABLE IF NOT EXISTS addresses (
-              id INT AUTO_INCREMENT PRIMARY KEY,
+              address_id INT AUTO_INCREMENT PRIMARY KEY,
               user_id INT NOT NULL, 
               address_type ENUM('Home', 'Office', 'Others') NOT NULL,
               house_area VARCHAR(255) NOT NULL,

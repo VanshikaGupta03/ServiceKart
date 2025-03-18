@@ -2,15 +2,19 @@ const db = require("../database");
 exports.orderPlace = async (req, res) => {
     try {
         const user_id = req.user.id;
-        const { products, address_id } = req.body;  
+        const { products } = req.body;  
 
-        //console.log("Order Data:", req.body); 
-
-        if (!user_id || !products || products.length === 0 || !address_id) {
-            return res.status(400).json({ success: false, message: "Missing required fields (products or address_id)" });
+        if (!user_id || !products || products.length === 0) {
+            return res.status(400).json({ success: false, message: "Missing required fields (products)" });
         }
 
-       
+        // Extract address_id from the first product (assuming all products use the same address)
+        const address_id = products[0].address_id; 
+
+        if (!address_id) {
+            return res.status(400).json({ success: false, message: "Missing address_id in products" });
+        }
+
         const [addressData] = await db.execute(
             "SELECT * FROM addresses WHERE address_id = ? AND user_id = ?",
             [address_id, user_id]
@@ -48,7 +52,6 @@ exports.orderPlace = async (req, res) => {
 
         let order_status = allInStock ? "Confirmed" : "Pending";
 
-       
         const [orderResult] = await db.execute(
             "INSERT INTO orders (id, total_price, order_status, address_id) VALUES (?, ?, ?, ?)",
             [user_id, total_price, order_status, address_id]
@@ -77,7 +80,7 @@ exports.orderPlace = async (req, res) => {
             message: "Order placed successfully", 
             orderId, 
             order_status, 
-            address:addressData[0]
+            address: addressData[0]
         });
 
     } catch (err) {
@@ -189,7 +192,7 @@ exports.getOrders = async (req, res) => {
            
             if (order.address_id) {
                 const [address] = await db.execute(
-                    "SELECT address_type, house_area, landmark, person_name, longitude, latitude FROM addresses WHERE id = ?",
+                    "SELECT address_type, house_area, landmark, person_name, longitude, latitude FROM addresses WHERE address_id = ?",
                     [order.address_id]
                 );
 
