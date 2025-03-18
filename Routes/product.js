@@ -16,11 +16,12 @@ router.post('/cancelOrder',verifyToken,orderController.cancelOrder);
 router.get('/getOrder',verifyToken,orderController.getOrders);
 
 router.post('/addRating',verifyToken,ratingController.addRating);
-router.post('/getRating',verifyToken,ratingController.getProductRatings);
+
 
 router.post("/wallet", verifyToken, walletController.addMoneyToWallet);
 router.post("/spend", verifyToken,walletController. spendFromWallet);
 router.get("/balance", verifyToken, walletController.getWalletBalance);
+router.get('/history',verifyToken,walletController.getWalletTransactions);
 
 
 module.exports = router;

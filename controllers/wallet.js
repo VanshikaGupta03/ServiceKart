@@ -68,3 +68,29 @@ exports.getWalletBalance = async (req, res) => {
         res.status(500).json({ success: false, message: "Database error", error: err });
     }
 };
+
+exports.getWalletTransactions = async (req, res) => {
+    try {
+        const user_id = req.user.id;
+
+        const [transactions] = await db.execute(
+            "SELECT transaction_id, amount, transaction_type, created_at FROM transactions WHERE user_id = ? ORDER BY created_at DESC",
+            [user_id]
+        );
+
+        if (transactions.length === 0) {
+            return res.status(200).json({ success: true, message: "No transactions found", transactions: [] });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Transaction history retrieved successfully",
+            transactions
+        });
+
+    } catch (error) {
+        console.error("Error fetching transactions:", error);
+        res.status(500).json({ success: false, message: "Database error", error });
+    }
+};
+
